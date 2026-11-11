@@ -70,6 +70,8 @@
     });
   }
 
+  const HILL_SPOT = ['.d.', 'ddd', 'ddd', '.d.'];
+
   function hill(w, h, spots) {
     const rx = w / 2;
     const inside = function (x, y) {
@@ -81,18 +83,13 @@
       return false;
     });
     spots.forEach(function (s) {
-      for (let dy = 0; dy < 4; dy++) {
+      HILL_SPOT.forEach(function (pattern, dy) {
         const r = rows[s[1] + dy].split('');
-        r[s[0]] = 'd';
-        r[s[0] + 1] = dy === 0 || dy === 3 ? 'w' : 'd';
-        r[s[0] + 2] = 'd';
-        if (dy === 0 || dy === 3) {
-          r[s[0]] = 'w';
-          r[s[0] + 2] = 'w';
-          r[s[0] + 1] = 'd';
+        for (let dx = 0; dx < pattern.length; dx++) {
+          if (pattern[dx] !== '.') r[s[0] + dx] = pattern[dx];
         }
         rows[s[1] + dy] = r.join('');
-      }
+      });
     });
     return rows;
   }
