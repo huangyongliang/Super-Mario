@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0d0d18">
+  <meta name="description" content="A fan-made Super Mario style platformer in plain HTML5: four worlds, original pixel art and chiptune music.">
+  <title>Super Mario &ndash; HTML5 Edition</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='2' y='6' width='12' height='9' fill='%23fcd8a8'/%3E%3Cpath d='M1 7a7 6 0 0 1 14 0z' fill='%23d82818'/%3E%3Ccircle cx='5' cy='4' r='1.6' fill='%23fff'/%3E%3Ccircle cx='11' cy='4' r='1.6' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main id="app">
+    <canvas id="screen" width="400" height="240" aria-label="Super Mario game screen">
+      This game needs a browser with canvas support.
+    </canvas>
+    <p id="help">
+      <kbd>&larr;</kbd><kbd>&rarr;</kbd> move &middot;
+      <kbd>&darr;</kbd> duck / enter pipes &middot;
+      <kbd>X</kbd> or <kbd>Space</kbd> jump &middot;
+      <kbd>Z</kbd> or <kbd>Shift</kbd> run / fireball &middot;
+      <kbd>Enter</kbd> start / pause &middot;
+      <kbd>M</kbd> sound &middot;
+      <kbd>F</kbd> fullscreen
+    </p>
+    <div id="touch" class="touch" hidden>
+      <div class="pad">
+        <button type="button" data-hold="left" aria-label="Left">&#9664;</button>
+        <button type="button" data-hold="down" aria-label="Duck">&#9660;</button>
+        <button type="button" data-hold="right" aria-label="Right">&#9654;</button>
+      </div>
+      <div class="actions">
+        <button type="button" data-hold="run" class="round b" aria-label="Run and fire">B</button>
+        <button type="button" data-hold="jump" class="round a" aria-label="Jump">A</button>
+      </div>
+      <div class="system">
+        <button type="button" data-tap="pause" aria-label="Pause">II</button>
+        <button type="button" data-tap="mute" aria-label="Sound on or off">&#9835;</button>
+        <button type="button" data-tap="fullscreen" aria-label="Fullscreen">&#9974;</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/level-data.js"></script>
+  <script src="js/level-loader.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/entities.js"></script>
+  <script src="js/art/tiles.js"></script>
+  <script src="js/art/player.js"></script>
+  <script src="js/art/enemies.js"></script>
+  <script src="js/art/scenery.js"></script>
+  <script src="js/art/font.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/demo.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
