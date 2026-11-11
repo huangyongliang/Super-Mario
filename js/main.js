@@ -8,6 +8,8 @@
   const TIME_UP_FRAMES = 150;
   const GAME_OVER_FRAMES = 330;
   const ENDING_WAIT_FRAMES = 120;
+  const DEMO_AFTER_FRAMES = 12 * 60;
+  const DEMO_AFTER_FLAG_FRAMES = 150;
   const TOAST_FRAMES = 90;
   const TOP_KEY = 'sm-html-top';
   const W = SM.VIEW_W;
@@ -200,6 +202,32 @@
     Audio.stopMusic();
   }
 
+  // The demo replays recorded button presses through world 1-1, silently, until a button is pressed.
+  function startDemo() {
+    game.mode = 'demo';
+    game.t = 0;
+    game.world = SM.World.create(SM.DEMO.level);
+  }
+
+  function demoFrame() {
+    const d = SM.DEMO;
+    const w = game.world;
+    const burst = Math.floor(game.t / d.burstFrames);
+    game.t++;
+    if (w.seq) {
+      w.seq.demoT = (w.seq.demoT || 0) + 1;
+      if (w.seq.demoT > DEMO_AFTER_FLAG_FRAMES) {
+        toTitle();
+        return;
+      }
+    }
+    if (w.status !== 'play' || (!w.seq && burst >= d.bursts.length)) {
+      toTitle();
+      return;
+    }
+    SM.World.step(w, w.seq ? {} : d.actions[+d.bursts[burst]]);
+  }
+
   function setPaused(on) {
     game.paused = on;
     Audio.setPaused(on);
@@ -230,6 +258,11 @@
       case 'title':
         game.titleWorld.frame++;
         if (go) newGame(0);
+        else if (SM.DEMO && ++game.t >= DEMO_AFTER_FRAMES) startDemo();
+        break;
+      case 'demo':
+        if (go || inp.pressed.pause) toTitle();
+        else demoFrame();
         break;
       case 'intro':
         if (++game.t >= INTRO_FRAMES) startLevel();
@@ -352,11 +385,22 @@
     }
   }
 
+  function drawDemo() {
+    const w = game.world;
+    R.drawWorld(ctx, w);
+    hud(w, w.time);
+    if (blink(game.t)) centred('DEMO', 40, { colour: '#fcd034' });
+    centred(game.touchUi ? 'TAP TO PLAY' : 'PRESS ENTER TO PLAY', 56, { colour: '#fcfcfc' });
+  }
+
   function draw() {
     ctx.imageSmoothingEnabled = false;
     switch (game.mode) {
       case 'title':
         drawTitle();
+        break;
+      case 'demo':
+        drawDemo();
         break;
       case 'intro':
         drawIntro();

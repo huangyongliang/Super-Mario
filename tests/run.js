@@ -746,6 +746,17 @@ test('every warp pipe can be entered and leads to solid ground in its zone', fun
   }
 });
 
+test('the title screen demo still reaches the flagpole (if not, run tests/make-demo.js)', function () {
+  require('../js/demo.js');
+  const d = SM.DEMO;
+  const w = World.create(d.level);
+  for (let i = 0; i < d.bursts.length * d.burstFrames && !w.seq; i++) {
+    World.step(w, d.actions[+d.bursts[Math.floor(i / d.burstFrames)]]);
+    assert.strictEqual(w.player.state === 'dying', false, 'the demo player dies at frame ' + i);
+  }
+  assert(w.seq && w.seq.kind === 'flag', 'the demo never reaches the flagpole');
+});
+
 test('copies of a world replay identically', function () {
   const a = World.create(0);
   const inputs = [];
