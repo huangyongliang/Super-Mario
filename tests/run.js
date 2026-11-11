@@ -746,15 +746,19 @@ test('every warp pipe can be entered and leads to solid ground in its zone', fun
   }
 });
 
-test('the title screen demo still reaches the flagpole (if not, run tests/make-demo.js)', function () {
+test('the title screen demos still reach their goals (if not, run tests/make-demo.js)', function () {
   require('../js/demo.js');
   const d = SM.DEMO;
-  const w = World.create(d.level);
-  for (let i = 0; i < d.bursts.length * d.burstFrames && !w.seq; i++) {
-    World.step(w, d.actions[+d.bursts[Math.floor(i / d.burstFrames)]]);
-    assert.strictEqual(w.player.state === 'dying', false, 'the demo player dies at frame ' + i);
-  }
-  assert(w.seq && w.seq.kind === 'flag', 'the demo never reaches the flagpole');
+  assert.strictEqual(d.runs.length, REAL_LEVELS, 'there should be a demo for every world');
+  d.runs.forEach(function (run) {
+    const name = SM.LEVEL_DATA[run.level].name;
+    const w = World.create(run.level);
+    for (let i = 0; i < run.bursts.length * d.burstFrames && !w.seq; i++) {
+      World.step(w, d.actions[+run.bursts[Math.floor(i / d.burstFrames)]]);
+      assert.strictEqual(w.player.state === 'dying', false, 'the ' + name + ' demo player dies at frame ' + i);
+    }
+    assert(w.seq, 'the ' + name + ' demo never reaches its goal');
+  });
 });
 
 test('copies of a world replay identically', function () {

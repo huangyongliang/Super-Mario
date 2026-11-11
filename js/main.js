@@ -9,7 +9,8 @@
   const GAME_OVER_FRAMES = 330;
   const ENDING_WAIT_FRAMES = 120;
   const DEMO_AFTER_FRAMES = 12 * 60;
-  const DEMO_AFTER_FLAG_FRAMES = 150;
+  const DEMO_INTRO_FRAMES = 100;
+  const DEMO_AFTER_FLAG_FRAMES = 240;
   const TOAST_FRAMES = 90;
   const TOP_KEY = 'sm-html-top';
   const W = SM.VIEW_W;
@@ -42,6 +43,8 @@
     toast: '',
     toastT: 0,
     touchUi: false,
+    demoIndex: 0,
+    demoRun: null,
   };
   let screenTapped = false;
 
@@ -202,16 +205,24 @@
     Audio.stopMusic();
   }
 
-  // The demo replays recorded button presses through world 1-1, silently, until a button is pressed.
+  // Demos replay recorded button presses through each world in turn, silently, until a button is
+  // pressed.
   function startDemo() {
+    const run = SM.DEMO.runs[game.demoIndex % SM.DEMO.runs.length];
+    game.demoIndex++;
+    game.demoRun = run;
     game.mode = 'demo';
-    game.t = 0;
-    game.world = SM.World.create(SM.DEMO.level);
+    game.t = -DEMO_INTRO_FRAMES;
+    game.world = SM.World.create(run.level);
   }
 
   function demoFrame() {
     const d = SM.DEMO;
     const w = game.world;
+    if (game.t < 0) {
+      game.t++;
+      return;
+    }
     const burst = Math.floor(game.t / d.burstFrames);
     game.t++;
     if (w.seq) {
@@ -221,11 +232,12 @@
         return;
       }
     }
-    if (w.status !== 'play' || (!w.seq && burst >= d.bursts.length)) {
+    const bursts = game.demoRun.bursts;
+    if (w.status !== 'play' || (!w.seq && burst >= bursts.length)) {
       toTitle();
       return;
     }
-    SM.World.step(w, w.seq ? {} : d.actions[+d.bursts[burst]]);
+    SM.World.step(w, w.seq ? {} : d.actions[+bursts[burst]]);
   }
 
   function setPaused(on) {
@@ -387,8 +399,15 @@
 
   function drawDemo() {
     const w = game.world;
+    if (game.t < 0) {
+      black();
+      R.drawHud(ctx, { score: 0, coins: 0, world: w.level.name, time: null, frame: 0 });
+      centred('WORLD ' + w.level.name, 84);
+      centred('DEMO', 120, { colour: '#fcd034' });
+      return;
+    }
     R.drawWorld(ctx, w);
-    hud(w, w.time);
+    R.drawHud(ctx, { score: w.score, coins: w.coins, world: w.level.name, time: w.time, frame: w.frame });
     if (blink(game.t)) centred('DEMO', 40, { colour: '#fcd034' });
     centred(game.touchUi ? 'TAP TO PLAY' : 'PRESS ENTER TO PLAY', 56, { colour: '#fcfcfc' });
   }
