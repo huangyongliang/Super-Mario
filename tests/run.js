@@ -678,6 +678,74 @@ test('five fireballs defeat the boss', function () {
 
 // ------------------------------------------------------------------ the real levels
 
+function standsOnSolid(w, p) {
+  const bottom = p.y + p.h;
+  if (bottom % TILE !== 0) return false;
+  for (let tx = Math.floor(p.x / TILE); tx <= Math.ceil((p.x + p.w) / TILE) - 1; tx++) {
+    if (World.solidAt(w, tx, bottom / TILE)) return true;
+  }
+  return false;
+}
+
+test('every level start and checkpoint is a clear spot on solid ground', function () {
+  for (let i = 0; i < REAL_LEVELS; i++) {
+    [false, true].forEach(function (fromCheckpoint) {
+      if (fromCheckpoint && !SM.Levels.get(i).checkpoint) return;
+      [0, 1].forEach(function (power) {
+        const w = World.create(i, { fromCheckpoint: fromCheckpoint, power: power });
+        const p = w.player;
+        const where = SM.LEVEL_DATA[i].name + (fromCheckpoint ? ' checkpoint' : ' start');
+        assert(!World.boxHitsSolid(w, p.x, p.y, p.w, p.h), where + ' is inside a wall');
+        assert(standsOnSolid(w, p), where + ' is not on the ground');
+      });
+    });
+  }
+});
+
+test('no enemy or item starts inside a wall', function () {
+  for (let i = 0; i < REAL_LEVELS; i++) {
+    const w = World.create(i);
+    w.ents.forEach(function (e) {
+      if (e.type === 'piranha' || e.type === 'firebar' || e.type === 'lift' || e.type === 'podoboo') return;
+      assert(!World.boxHitsSolid(w, e.x, e.y, e.w, e.h),
+        SM.LEVEL_DATA[i].name + ': ' + e.type + ' at ' + Math.floor(e.x / TILE) + ',' + Math.floor(e.y / TILE) + ' is inside a wall');
+    });
+  }
+});
+
+test('every warp pipe can be entered and leads to solid ground in its zone', function () {
+  for (let i = 0; i < REAL_LEVELS; i++) {
+    const L = SM.Levels.get(i);
+    L.warps.forEach(function (warp, k) {
+      const where = L.name + ' warp ' + k;
+      const w = World.create(i, { power: 1 });
+      const zone = L.zones[warp.zone];
+      w.zone = warp.zone;
+      w.zx0 = zone.x0;
+      w.zx1 = zone.x1;
+      const p = w.player;
+      p.y = (warp.ty + 1) * TILE - p.h;
+      if (warp.enter === 'down') {
+        p.x = (warp.tx + 1) * TILE - p.w / 2;
+      } else {
+        p.x = (warp.tx + 1) * TILE - p.w - 4;
+      }
+      World.step(w, {});
+      assert(p.onGround && p.state === 'normal', where + ': cannot stand at the entrance');
+      playUntil(w, warp.enter === 'down' ? { down: true } : { right: true }, function () {
+        return p.state === 'pipeIn';
+      }, 60);
+      playUntil(w, {}, function () {
+        return p.state === 'normal' && p.onGround;
+      }, 400);
+      assert.strictEqual(w.zone, warp.toZone, where + ': arrived in the wrong zone');
+      assert(!World.boxHitsSolid(w, p.x, p.y, p.w, p.h), where + ': arrived inside a wall');
+      const z = L.zones[warp.toZone];
+      assert(w.camX >= z.x0 * TILE && w.camX + SM.VIEW_W <= z.x1 * TILE, where + ': camera outside the zone');
+    });
+  }
+});
+
 test('copies of a world replay identically', function () {
   const a = World.create(0);
   const inputs = [];

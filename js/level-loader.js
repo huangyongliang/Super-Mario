@@ -86,7 +86,6 @@
       deco: [],
     };
     const prefabs = [];
-    const trees = [];
 
     stitched.zones.forEach(function (zone, zi) {
       for (let r = 0; r < ROWS; r++) {
@@ -101,7 +100,6 @@
             if (BLOCK_CONTENTS[ch]) L.contents[i] = BLOCK_CONTENTS[ch];
             if (ch === '=') L.bridge.push(i);
             if (ch === 'A') L.axe = { tx: x, ty: r, zone: zi };
-            if (ch === 'T') trees.push({ x: x, r: r });
             known = true;
           }
           if (SPAWN_CHARS[ch]) {
@@ -166,22 +164,21 @@
       }
     });
 
-    function isTree(x, r) {
-      if (x < 0 || x >= width) return false;
-      const tile = L.tiles[r * width + x];
-      return tile === T.TREE_L || tile === T.TREE_M || tile === T.TREE_R;
-    }
-    trees.forEach(function (t) {
-      const left = isTree(t.x - 1, t.r);
-      const right = isTree(t.x + 1, t.r);
-      if (left && right) {
-        for (let r = t.r + 1; isFree(t.x, r); r++) set(t.x, r, T.TRUNK);
-      } else if (right) {
-        set(t.x, t.r, T.TREE_L);
-      } else if (left) {
-        set(t.x, t.r, T.TREE_R);
+    // Each run of treetop tiles gets rounded ends and a single trunk under its middle.
+    for (let r = 0; r < ROWS; r++) {
+      for (let x = 0; x < width; x++) {
+        if (L.tiles[r * width + x] !== T.TREE_M) continue;
+        let end = x;
+        while (end + 1 < width && L.tiles[r * width + end + 1] === T.TREE_M) end++;
+        if (end > x) {
+          set(x, r, T.TREE_L);
+          set(end, r, T.TREE_R);
+        }
+        const mid = Math.floor((x + end) / 2);
+        for (let below = r + 1; isFree(mid, below); below++) set(mid, below, T.TRUNK);
+        x = end;
       }
-    });
+    }
 
     (def.warps || []).forEach(function (warp) {
       const from = L.markers[warp.from];
