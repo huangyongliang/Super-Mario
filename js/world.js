@@ -268,7 +268,10 @@
         f.y += f.vy;
         life = 90;
       }
-      if (f.t >= life) w.fx.splice(i, 1);
+      if (f.t >= life) {
+        w.fx.splice(i, 1);
+        if (f.kind === 'coin') w.fx.push({ kind: 'score', text: String(SCORE.coin), x: f.x + 2, y: f.y, t: 0 });
+      }
     }
     for (let i = w.bumps.length - 1; i >= 0; i--) {
       if (++w.bumps[i].t >= BUMP_FRAMES) w.bumps.splice(i, 1);
