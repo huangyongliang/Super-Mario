@@ -3,6 +3,8 @@
 A Super Mario style platformer written in plain HTML5, CSS and JavaScript. There is no build step
 and nothing to install: open `index.html` in a browser and play.
 
+**Play online:** <https://huangyongliang.github.io/Super-Mario/>
+
 It has four worlds (overground, underground, treetops and a castle), the classic power-ups and
 enemies, warp pipes, a flagpole finish, a castle boss with a collapsing bridge, synthesized sound
 effects and music, and keyboard, gamepad and touch controls.
@@ -53,8 +55,10 @@ block with your head.
 
 ## How it is built
 
-Everything is plain scripts on a global `SM` object, so the page also works from `file://`. The
-game logic has no browser dependencies, which lets the tests run it in Node.
+Everything is plain scripts on a global `SM` object, so the page also works from `file://`. Styles
+and scripts are linked with relative paths, so the same files work from a local server and from the
+GitHub Pages project URL above. The game logic has no browser dependencies, which lets the tests
+run it in Node. The Pages workflow publishes `index.html`, `css/` and `js/` only.
 
 | File                     | What it does                                                         |
 | ------------------------ | -------------------------------------------------------------------- |
