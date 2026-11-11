@@ -92,14 +92,16 @@ kbd {
   border-color: rgba(255, 255, 255, 0.7);
 }
 
+/* The duck button sits half a button lower, inside the pad's bottom padding. */
 .pad {
   position: absolute;
   left: max(16px, env(safe-area-inset-left));
-  bottom: max(18px, env(safe-area-inset-bottom));
+  bottom: max(12px, env(safe-area-inset-bottom));
   display: grid;
   grid-template-columns: repeat(3, 64px);
   grid-template-rows: 64px;
   gap: 6px;
+  padding-bottom: 28px;
 }
 
 .pad button {
@@ -107,7 +109,7 @@ kbd {
 }
 
 .pad [data-hold="down"] {
-  transform: translateY(26px);
+  transform: translateY(28px);
 }
 
 .actions {
@@ -150,13 +152,30 @@ kbd {
   font-size: 15px;
 }
 
-@media (max-height: 420px) {
+/* Phones held sideways: smaller buttons, and the system buttons move into the margin beside the
+   screen so they do not cover the clock. */
+@media (max-height: 500px) and (orientation: landscape) {
   .pad {
     grid-template-columns: repeat(3, 54px);
     grid-template-rows: 54px;
+    gap: 5px;
+    padding-bottom: 24px;
+  }
+  .pad [data-hold="down"] {
+    transform: translateY(24px);
   }
   .round {
     width: 64px;
     height: 64px;
+  }
+  .round.a {
+    margin-bottom: 24px;
+  }
+  .actions {
+    gap: 12px;
+  }
+  .system {
+    flex-direction: column;
+    right: max(8px, env(safe-area-inset-right));
   }
 }

@@ -405,6 +405,10 @@
     useTouchUi();
   }
   window.addEventListener('touchstart', useTouchUi, { passive: true });
+  // Some browsers only let audio start from inside an input event handler.
+  ['keydown', 'pointerdown', 'touchend'].forEach(function (type) {
+    window.addEventListener(type, Audio.unlock, { passive: true });
+  });
   canvas.addEventListener('pointerdown', function () {
     screenTapped = true;
   });
