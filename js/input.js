@@ -23,6 +23,8 @@
 
   function create(touchRoot) {
     const keys = new Set();
+    // Buttons pressed since the last frame, so that a tap shorter than a frame is not lost.
+    const latched = {};
     const taps = {};
     const pointers = new Map();
     let padPrev = {};
@@ -40,8 +42,12 @@
       e.preventDefault();
       if (e.repeat) return;
       keys.add(e.code);
-      if (HELD.indexOf(action) < 0) press(action);
-      else anyPress = true;
+      if (HELD.indexOf(action) < 0) {
+        press(action);
+      } else {
+        latched[action] = true;
+        anyPress = true;
+      }
     });
     window.addEventListener('keyup', function (e) {
       if (KEYS[e.code]) keys.delete(e.code);
@@ -147,9 +153,12 @@
      * any } and clears the one-shot presses.
      */
     function poll() {
-      const held = {};
+      const held = Object.assign({}, latched);
       keys.forEach(function (code) {
         held[KEYS[code]] = true;
+      });
+      Object.keys(latched).forEach(function (k) {
+        delete latched[k];
       });
       touchHeld(held);
       gamepadHeld(held);
